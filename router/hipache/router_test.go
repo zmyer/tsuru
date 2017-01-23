@@ -1,4 +1,4 @@
-// Copyright 2016 tsuru authors. All rights reserved.
+// Copyright 2017 tsuru authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -171,7 +171,7 @@ func (s *S) TestShouldBeRegisteredAsPlanb(c *check.C) {
 	defer config.Unset("routers:myplanb:type")
 	r, err := router.Get("myplanb")
 	c.Assert(err, check.IsNil)
-	_, ok := r.(*hipacheRouter)
+	_, ok := r.(*planbRouter)
 	c.Assert(ok, check.Equals, true)
 }
 
@@ -695,4 +695,68 @@ func (s *S) TestAddRouteAfterCorruptedRedis(c *check.C) {
 	addr1, _ := url.Parse("http://127.0.0.1")
 	err = r.AddRoute(backend1, addr1)
 	c.Assert(err, check.Equals, router.ErrBackendNotFound)
+}
+
+func (s *S) TestAddCertificate(c *check.C) {
+	r := planbRouter{hipacheRouter{prefix: "planb"}}
+	r.AddCertificate("www.example.com", "cert-content", "key-content")
+	redisConn, err := r.connect()
+	c.Assert(err, check.IsNil)
+	data, err := redisConn.HMGet("tls:www.example.com", "certificate", "key").Result()
+	c.Assert(err, check.IsNil)
+	c.Assert(data, check.NotNil)
+	c.Assert(data[0].(string), check.Equals, "cert-content")
+	c.Assert(data[1].(string), check.Equals, "key-content")
+}
+
+func (s *S) TestRemoveCertificate(c *check.C) {
+	r := planbRouter{hipacheRouter{prefix: "planb"}}
+	r.AddCertificate("www.example.com", "cert-content", "key-content")
+	redisConn, err := r.connect()
+	c.Assert(err, check.IsNil)
+	data, err := redisConn.HMGet("tls:www.example.com", "certificate", "key").Result()
+	c.Assert(err, check.IsNil)
+	c.Assert(data, check.NotNil)
+	r.RemoveCertificate("www.example.com")
+	exists, err := redisConn.Exists("tls:www.example.com").Result()
+	c.Assert(err, check.IsNil)
+	c.Assert(exists, check.Equals, false)
+}
+
+func (s *S) TestGetCertificate(c *check.C) {
+	testCert := `-----BEGIN CERTIFICATE-----
+MIIDkzCCAnugAwIBAgIJAIN09j/dhfmsMA0GCSqGSIb3DQEBCwUAMGAxCzAJBgNV
+BAYTAkJSMRcwFQYDVQQIDA5SaW8gZGUgSmFuZWlybzEXMBUGA1UEBwwOUmlvIGRl
+IEphbmVpcm8xDjAMBgNVBAoMBVRzdXJ1MQ8wDQYDVQQDDAZhcHAuaW8wHhcNMTcw
+MTEyMjAzMzExWhcNMjcwMTEwMjAzMzExWjBgMQswCQYDVQQGEwJCUjEXMBUGA1UE
+CAwOUmlvIGRlIEphbmVpcm8xFzAVBgNVBAcMDlJpbyBkZSBKYW5laXJvMQ4wDAYD
+VQQKDAVUc3VydTEPMA0GA1UEAwwGYXBwLmlvMIIBIjANBgkqhkiG9w0BAQEFAAOC
+AQ8AMIIBCgKCAQEAw3GRuXOyL0Ar5BYA8DAPkY7ZHtHpEFK5bOoZB3lLBMjIbUKk
++riNTTgcY1eCsoAMZ0ZGmwmK/8mrJSBcsK/f1HVTcsSU0pA961ROPkAad/X/luSL
+nXxDnZ1c0cOeU3GC4limB4CSZ64SZEDJvkUWnhUjTO4jfOCu0brkEnF8x3fpxfAy
+OrAO50Uxij3VOQIAkP5B0T6x2Htr1ogm/vuubp5IG+KVuJHbozoaFFgRnDwrk+3W
+k3FFUvg4ywY2jgJMLFJb0U3IIQgSqwQwXftKdu1EaoxA5fQmu/3a4CvYKKkwLJJ+
+6L4O9Uf+QgaBZqTpDJ7XcIYbW+TPffzSwuI5PwIDAQABo1AwTjAdBgNVHQ4EFgQU
+3XOK6bQW7hL47fMYH8JT/qCqIDgwHwYDVR0jBBgwFoAU3XOK6bQW7hL47fMYH8JT
+/qCqIDgwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAgP4K9Zd1xSOQ
+HAC6p2XjuveBI9Aswudaqg8ewYZtbtcbV70db+A69b8alSXfqNVqI4L2T97x/g6J
+8ef8MG6TExhd1QktqtxtR+wsiijfUkityj8j5JT36TX3Kj0eIXrLJWxPEBhtGL17
+ZBGdNK2/tDsQl5Wb+qnz5Ge9obybRLHHL2L5mrSwb+nC+nrC2nlfjJgVse9HhU9j
+6Euq5hstXAlQH7fUbC5zAMS5UFrbzR+hOvjrSwzkkJmKW8BKKCfSaevRhq4VXxpw
+Wx1oQV8UD5KLQQRy9Xew/KRHVzOpdkK66/i/hgV7GdREy4aKNAEBRpheOzjLDQyG
+YRLI1QVj1Q==
+-----END CERTIFICATE-----`
+	r := planbRouter{hipacheRouter{prefix: "planb"}}
+	err := r.AddCertificate("myapp.io", testCert, "key-content")
+	c.Assert(err, check.IsNil)
+	cert, err := r.GetCertificate("myapp.io")
+	c.Assert(err, check.IsNil)
+	c.Assert(cert, check.DeepEquals, testCert)
+}
+
+func (s *S) TestGetCertificateNotFound(c *check.C) {
+	r := planbRouter{hipacheRouter{prefix: "planb"}}
+	cert, err := r.GetCertificate("otherapp")
+	c.Assert(err, check.DeepEquals, router.ErrCertificateNotFound)
+	c.Assert(cert, check.Equals, "")
 }

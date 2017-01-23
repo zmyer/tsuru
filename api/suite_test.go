@@ -1,4 +1,4 @@
-// Copyright 2016 tsuru authors. All rights reserved.
+// Copyright 2017 tsuru authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -90,7 +90,9 @@ func (s *S) SetUpSuite(c *check.C) {
 
 func (s *S) SetUpTest(c *check.C) {
 	config.Set("docker:router", "fake")
+	config.Set("routers:fake-tls:type", "fake-tls")
 	routertest.FakeRouter.Reset()
+	routertest.TLSRouter.Reset()
 	repositorytest.Reset()
 	var err error
 	s.conn, err = db.Conn()

@@ -1,4 +1,4 @@
-// Copyright 2016 tsuru authors. All rights reserved.
+// Copyright 2017 tsuru authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -273,6 +273,7 @@ func (s *S) TestRoutersList(c *check.C) {
 	recorder := httptest.NewRecorder()
 	expected := []router.PlanRouter{
 		{Name: "fake", Type: "fake"},
+		{Name: "fake-tls", Type: "fake-tls"},
 		{Name: "router1", Type: "foo"},
 		{Name: "router2", Type: "bar"},
 	}

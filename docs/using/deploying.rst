@@ -1,4 +1,4 @@
-.. Copyright 2016 tsuru authors. All rights reserved.
+.. Copyright 2017 tsuru authors. All rights reserved.
    Use of this source code is governed by a BSD-style
    license that can be found in the LICENSE file.
 
@@ -17,13 +17,13 @@ should not works as expected with more than one `unit`.
 Select a deployment process
 ---------------------------
 
-tsuru supports three ways of deployment:
+tsuru supports three ways of deployment (git, app-deploy, Docker image):
 
 Git
 +++
 
 Git deployments are based on tsuru `platforms` and are useful if you want to
-track the diference betwen the deployments.
+track the difference between the deployments.
 
 :doc:`Learn how to deploy applications using Git </using/quickstart>`.
 
@@ -31,7 +31,7 @@ app-deploy
 ++++++++++
 
 The `app-deploy` deployments are based on tsuru `platforms` and are useful for
-automated deploymens.
+automated deployments.
 
 Docker image
 ++++++++++++

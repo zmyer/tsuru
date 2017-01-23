@@ -1,4 +1,4 @@
-.. Copyright 2016 tsuru authors. All rights reserved.
+.. Copyright 2017 tsuru authors. All rights reserved.
    Use of this source code is governed by a BSD-style
    license that can be found in the LICENSE file.
 
@@ -291,7 +291,7 @@ with Java 8.
 Setting memory for application
 ==============================
 
-In the Java platform provided by tsuru, users can use units with diferent plans and each plan may have containers with different amounts of memory. There's an environment variable for defining the max amount of heap memory (in megabytes) that Java should use: ``JAVA_MAX_MEMORY`` ( it's equal ``-Xmx``). The default value for this environment variable is 128 (it can be different according to your `basebuilder <https://github.com/tsuru/basebuilder/blob/master/java/start-tomcat>`_).
+In the Java platform provided by tsuru, users can use units with different plans and each plan may have containers with different amounts of memory. There's an environment variable for defining the max amount of heap memory (in megabytes) that Java should use: ``JAVA_MAX_MEMORY`` ( it's equal ``-Xmx``). The default value for this environment variable is 128 (it can be different according to your `basebuilder <https://github.com/tsuru/basebuilder/blob/master/java/start-tomcat>`_).
 
 .. highlight:: bash
 

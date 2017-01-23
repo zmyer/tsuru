@@ -1,4 +1,4 @@
-// Copyright 2016 tsuru authors. All rights reserved.
+// Copyright 2017 tsuru authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -586,7 +586,8 @@ func serviceSpecForNodeContainer(name, pool string) (*swarm.ServiceSpec, error) 
 			ContainerSpec: swarm.ContainerSpec{
 				Image:       config.Image(),
 				Labels:      labels,
-				Command:     config.Config.Cmd,
+				Command:     config.Config.Entrypoint,
+				Args:        config.Config.Cmd,
 				Env:         config.Config.Env,
 				Dir:         config.Config.WorkingDir,
 				User:        config.Config.User,

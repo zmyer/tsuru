@@ -1,4 +1,4 @@
-// Copyright 2016 tsuru authors. All rights reserved.
+// Copyright 2017 tsuru authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -24,14 +24,15 @@ import (
 type routerFactory func(routerName, configPrefix string) (Router, error)
 
 var (
-	ErrBackendExists   = errors.New("Backend already exists")
-	ErrBackendNotFound = errors.New("Backend not found")
-	ErrBackendSwapped  = errors.New("Backend is swapped cannot remove")
-	ErrRouteExists     = errors.New("Route already exists")
-	ErrRouteNotFound   = errors.New("Route not found")
-	ErrCNameExists     = errors.New("CName already exists")
-	ErrCNameNotFound   = errors.New("CName not found")
-	ErrCNameNotAllowed = errors.New("CName as router subdomain not allowed")
+	ErrBackendExists       = errors.New("Backend already exists")
+	ErrBackendNotFound     = errors.New("Backend not found")
+	ErrBackendSwapped      = errors.New("Backend is swapped cannot remove")
+	ErrRouteExists         = errors.New("Route already exists")
+	ErrRouteNotFound       = errors.New("Route not found")
+	ErrCNameExists         = errors.New("CName already exists")
+	ErrCNameNotFound       = errors.New("CName not found")
+	ErrCNameNotAllowed     = errors.New("CName as router subdomain not allowed")
+	ErrCertificateNotFound = errors.New("Certificate not found")
 )
 
 const HttpScheme = "http"
@@ -113,6 +114,14 @@ type HealthChecker interface {
 
 type OptsRouter interface {
 	AddBackendOpts(name string, opts map[string]string) error
+}
+
+// TLSRouter is a router that supports adding and removing
+// certificates for a given cname
+type TLSRouter interface {
+	AddCertificate(cname, certificate, key string) error
+	RemoveCertificate(cname string) error
+	GetCertificate(cname string) (string, error)
 }
 
 type HealthcheckData struct {
